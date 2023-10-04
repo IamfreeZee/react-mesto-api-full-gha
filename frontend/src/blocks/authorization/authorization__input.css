@@ -1,0 +1,16 @@
+.authorization__input {
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.21;
+  color: #ccc;
+  padding: 0;
+  padding-left: 2px;
+  border: none;
+  border-bottom: 2px solid #ccc;
+  min-height: 27px;
+  background-color: #000;
+}
+
+input::-webkit-input-placeholder {
+  color: #ccc;
+}

@@ -1,0 +1,13 @@
+.cards {
+  /* outline: 1px solid red; */
+  width: 100%;
+  max-width: 880px;
+  padding-top: 50px;
+}
+
+@media screen and (max-width: 767px) {
+  .cards {
+    max-width: 282px;
+    padding-top: 35px;
+  }
+}
