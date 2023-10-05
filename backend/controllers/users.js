@@ -1,11 +1,11 @@
 const { SECRET_KEY } = process.env;
+const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const BadRequestError = require('../errors/badRequestError');
 const NotFoundError = require('../errors/notFoundError');
 const ConflictError = require('../errors/conflictError');
-const UnauthorizedError = require('../errors/unauthorizedError');
 
 const addUser = (req, res, next) => {
   const {
@@ -19,7 +19,7 @@ const addUser = (req, res, next) => {
       name: user.name, about: user.about, avatar: user.avatar, email: user.email, _id: user._id,
     }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err instanceof mongoose.Error.ValidationError) {
         next(new BadRequestError(err.message));
       } else if (err.code === 11000) {
         next(new ConflictError('Пользователь с таким Email уже существует'));
@@ -36,13 +36,7 @@ const loginUser = (req, res, next) => {
       const token = jwt.sign({ _id: user._id }, SECRET_KEY, { expiresIn: '7d' });
       res.status(200).send({ token });
     })
-    .catch((err) => {
-      if (err.message === 'Неправильные почта или пароль') {
-        next(new UnauthorizedError('Неправильные почта или пароль'));
-      } else {
-        next(err);
-      }
-    });
+    .catch(next);
 };
 
 const getUserMe = (req, res, next) => {
@@ -59,12 +53,12 @@ const getUsers = (req, res, next) => {
 
 const getUserById = (req, res, next) => {
   User.findById(req.params.userId)
-    .orFail(new Error('NotFoundError'))
+    .orFail()
     .then((user) => res.status(200).send(user))
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err instanceof mongoose.Error.CastError) {
         next(new BadRequestError('Не корректный Id пользователя'));
-      } else if (err.message === 'NotFoundError') {
+      } else if (err instanceof mongoose.Error.DocumentNotFoundError) {
         next(new NotFoundError('Пользователь с таким Id не найден'));
       } else {
         next(err);
@@ -77,7 +71,7 @@ const editUserData = (req, res, next) => {
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
     .then((user) => res.status(200).send(user))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err instanceof mongoose.Error.ValidationError) {
         next(new BadRequestError(err.message));
       } else {
         next(err);
@@ -90,7 +84,7 @@ const editUserAvatar = (req, res, next) => {
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
     .then((user) => res.status(200).send(user))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err instanceof mongoose.Error.ValidationError) {
         next(new BadRequestError(err.message));
       } else {
         next(err);

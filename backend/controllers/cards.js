@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Card = require('../models/card');
 const BadRequestError = require('../errors/badRequestError');
 const NotFoundError = require('../errors/notFoundError');
@@ -8,7 +9,7 @@ const addCard = (req, res, next) => {
   Card.create({ name, link, owner: req.user._id })
     .then((card) => res.status(201).send(card))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err instanceof mongoose.Error.ValidationError) {
         next(new BadRequestError(err.message));
       } else {
         next(err);
@@ -25,7 +26,7 @@ const getCards = (req, res, next) => {
 
 const deleteCard = (req, res, next) => {
   Card.findById(req.params.cardId)
-    .orFail(new Error('NotFoundError'))
+    .orFail()
     .then((card) => {
       if (card && card.owner.equals(req.user._id)) {
         Card.deleteOne(card)
@@ -36,9 +37,9 @@ const deleteCard = (req, res, next) => {
       }
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err instanceof mongoose.Error.CastError) {
         next(new BadRequestError('Не коректный Id карточки'));
-      } else if (err.message === 'NotFoundError') {
+      } else if (err instanceof mongoose.Error.DocumentNotFoundError) {
         next(new NotFoundError('Карточка с таким Id не найдена'));
       } else {
         next(err);
@@ -48,13 +49,13 @@ const deleteCard = (req, res, next) => {
 
 const likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(req.params.cardId, { $addToSet: { likes: req.user._id } }, { new: true })
-    .orFail(new Error('NotFoundError'))
+    .orFail()
     // .populate(['owner', 'likes'])
     .then((card) => res.status(200).send(card))
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err instanceof mongoose.Error.CastError) {
         next(new BadRequestError('Не коректный Id карточки'));
-      } else if (err.message === 'NotFoundError') {
+      } else if (err instanceof mongoose.Error.DocumentNotFoundError) {
         next(new NotFoundError('Карточка с таким Id не найдена'));
       } else {
         next(err);
@@ -64,13 +65,13 @@ const likeCard = (req, res, next) => {
 
 const dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(req.params.cardId, { $pull: { likes: req.user._id } }, { new: true })
-    .orFail(new Error('NotFoundError'))
+    .orFail()
     // .populate(['owner', 'likes'])
     .then((card) => res.status(200).send(card))
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err instanceof mongoose.Error.CastError) {
         next(new BadRequestError('Не коректный Id карточки'));
-      } else if (err.message === 'NotFoundError') {
+      } else if (err instanceof mongoose.Error.DocumentNotFoundError) {
         next(new NotFoundError('Карточка с таким Id не найдена'));
       } else {
         next(err);
