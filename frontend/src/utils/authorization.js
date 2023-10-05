@@ -54,7 +54,7 @@ class Authorization {
 
 // создание экземпляра класса
 const authorization = new Authorization({
-  baseUrl: 'http://localhost:3000' // старый адрес для запросов 'https://auth.nomoreparties.co'
+  baseUrl: 'https://api.freezee.nomoredomainsrocks.ru' // старый адрес для запросов 'https://auth.nomoreparties.co'
 });
 
 export { authorization }

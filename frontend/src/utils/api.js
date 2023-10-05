@@ -116,7 +116,7 @@ class Api {
 
 // создание экземпляра класса API
 const api = new Api({
-  baseUrl: 'http://localhost:3000'
+  baseUrl: 'https://api.freezee.nomoredomainsrocks.ru'
 });
 
 export { api }
