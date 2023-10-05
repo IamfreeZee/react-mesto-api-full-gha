@@ -7,7 +7,6 @@ const helmet = require('helmet');
 const { errors } = require('celebrate');
 const cors = require('cors');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
-
 const auth = require('./middlewares/auth');
 const NotFoundError = require('./errors/notFoundError');
 
