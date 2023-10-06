@@ -1,4 +1,4 @@
-const { NODE_ENV, SECRET_KEY, DEV_KEY } = process.env;
+const { NODE_ENV, SECRET_KEY } = process.env;
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -33,7 +33,7 @@ const loginUser = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? SECRET_KEY : DEV_KEY, { expiresIn: '7d' });
+      const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? SECRET_KEY : 'dev-key', { expiresIn: '7d' });
       res.status(200).send({ token });
     })
     .catch(next);
